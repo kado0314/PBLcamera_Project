@@ -1,6 +1,5 @@
 import base64
 from flask import Blueprint, render_template, request
-from .scorer_main import FashionScorer
 from .chart_generator import generate_radar_chart
 
 scoring_bp = Blueprint("scoring", __name__, template_folder="templates")

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ファッション採点AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mycss.css') }}">
+    <link rel="icon" href="https://github.com/kado0314/PBLcamera/blob/main/static/image/huku.png?raw=true" type="image/png">
+</head>
+<body>
+    <h1>ファッション採点AI</h1>
+    <div class="card form-card">
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('saiten') }}">
+            <label for="image_file">画像をアップロード:</label><br>
+            <input type="file" ...>
+            <label for="user_gender">性別:</label><br>
+            <select id="user_gender" name="user_gender"> ... </select><br><br>
+            <label for="intended_scene">TPO (シーン):</label><br>
+            <select id="intended_scene" name="intended_scene"> ... </select><br><br>
+            <button type="submit">採点する</button>
+        </form>
+    </div>
+
+    {% if uploaded_image_data %}
+    <hr>
+    <h3>採点対象 (...)</h3>
+    <img src="{{ uploaded_image_data }}" ...>
+    {% endif %}
+
+    {% if score is not none %}
+    <hr>
+    <h2>採点結果: {{ score }} 点</h2>
+    
+    {% if ai_feedback %}
+    <div class="feedback-container">
+        <h3>AI スタイリストのアドバイス</h3>
+        <pre class="ai-feedback-text">{{ ai_feedback }}</pre>
+    </div>
+    {% endif %}
+
+    {% endif %}
+    
+    {% if radar_chart_data %}
+    <hr>
+    <h3>スコアチャート</h3>
+    <img src="{{ radar_chart_data }}" ...>
+    {% endif %}
+</body>
+</html>

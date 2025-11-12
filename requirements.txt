@@ -1,0 +1,8 @@
+flask
+google-generativeai
+python-dotenv
+numpy
+opencv-python-headless
+matplotlib
+pillow
+gunicorn  # ★ デプロイ用のWebサーバー

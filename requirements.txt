@@ -5,4 +5,5 @@ numpy
 opencv-python-headless
 matplotlib
 pillow
-gunicorn  # ★ デプロイ用のWebサーバー
+gunicorn
+mediapipe

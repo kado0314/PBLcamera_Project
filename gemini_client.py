@@ -17,7 +17,7 @@ except KeyError:
     print("⚠️ GEMINI_API_KEY が .env または環境変数に設定されていません。")
 
 # ▼▼▼ 修正: 安定版の 'gemini-pro' に変更 ▼▼▼
-MODEL_NAME = "gemini-pro"
+MODEL_NAME = "gemini-1.0-pro"
 # ▲▲▲ 修正 ▲▲▲
 
 def generate_fashion_feedback(image_base64: str, subscores: dict, overall_score: float) -> str:

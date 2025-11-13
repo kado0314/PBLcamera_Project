@@ -1,5 +1,5 @@
 flask
-google-generativeai
+google-generativeai>=0.9.0
 python-dotenv
 numpy
 opencv-python-headless

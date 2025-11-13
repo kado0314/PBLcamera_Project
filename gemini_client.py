@@ -16,9 +16,8 @@ try:
 except KeyError:
     print("⚠️ GEMINI_API_KEY が .env または環境変数に設定されていません。")
 
-# ▼▼▼ 修正: 'gemini-1.5-flash-latest' に戻す ▼▼▼
-# (新しいライブラリバージョンと組み合わせることで正しく動作します)
-MODEL_NAME = "gemini-1.5-flash-latest"
+# ▼▼▼ 修正: '0.4.1'ライブラリと互換性のある 'gemini-pro-vision' に変更 ▼▼▼
+MODEL_NAME = "gemini-pro-vision"
 # ▲▲▲ 修正 ▲▲▲
 
 def generate_fashion_feedback(image_base64: str, subscores: dict, overall_score: float) -> str:

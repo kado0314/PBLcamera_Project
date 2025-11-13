@@ -16,8 +16,9 @@ try:
 except KeyError:
     print("⚠️ GEMINI_API_KEY が .env または環境変数に設定されていません。")
 
-# ▼▼▼ 修正: 安定版の 'gemini-pro' に変更 ▼▼▼
-MODEL_NAME = "gemini-1.0-pro"
+# ▼▼▼ 修正: 画像とテキストを処理できる 'gemini-pro-vision' に変更 ▼▼▼
+# これが画像認識（Vision）に対応した安定版モデルです。
+MODEL_NAME = "gemini-pro-vision"
 # ▲▲▲ 修正 ▲▲▲
 
 def generate_fashion_feedback(image_base64: str, subscores: dict, overall_score: float) -> str:
@@ -64,6 +65,7 @@ def generate_fashion_feedback(image_base64: str, subscores: dict, overall_score:
 """
 
         # Gemini API を呼び出す (画像とテキストを同時に送信)
+        # 'gemini-pro-vision' はこの形式（[テキスト, 画像]）を受け付けます
         response = model.generate_content([system_prompt, img])
         
         print("✅ AIフィードバック取得完了")

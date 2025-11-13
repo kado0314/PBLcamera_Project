@@ -2,7 +2,7 @@
 import cv2
 import numpy as np
 from typing import Dict, Any
-from .rules_db import BIAS_ADJUSTMENTS
+from rules_db import BIAS_ADJUSTMENTS
 
 # MediaPipe は重いので「遅延初期化」。最初は None にしておく。
 pose_estimator = None

@@ -2,14 +2,24 @@
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>AIファッション採点</title>
+    <title>ファイルアップロード（セキュアな例）</title>
 </head>
 <body>
-    <h1>あなたのファッションをAIが採点します</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-      <p>採点したいコーディネートの画像をアップロードしてください:</p>
-      <input type="file" name="image" accept="image/jpeg, image/png, image/webp">
-      <input type="submit" value="採点を開始する">
+    <h1>ファイルをアップロード</h1>
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" enctype="multipart/form-data">
+      <input type="file" name="file">
+      <input type="submit" value="アップロード">
     </form>
 </body>
 </html>

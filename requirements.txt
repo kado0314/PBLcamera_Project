@@ -1,9 +1,5 @@
-flask
-google-generativeai==0.4.1
-python-dotenv
-numpy
-opencv-python-headless
+Flask
+google-generativeai
 matplotlib
-pillow
 gunicorn
-mediapipe
+Pillow

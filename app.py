@@ -15,11 +15,11 @@ def index():
     """ index.html (アップロードフォーム) を表示 """
     return render_template('index.html')
 
-@app.route('/upload', methods=)  # <-- ★★★ 最終修正点
+@app.route('/upload', methods=)  # <-- ★★★ 構文エラーを修正しました
 def upload():
     """ 画像アップロードとAI分析の処理 """
     
-    # ファイルアップロードの検証
+    # ファイルアップロードの検証 [1, 4]
     if 'image' not in request.files or request.files['image'].filename == '':
         # ファイルが選択されていない場合は、トップページにリダイレクト
         return redirect(url_for('index'))

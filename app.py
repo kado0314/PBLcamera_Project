@@ -28,7 +28,7 @@ def allowed_file(filename):
 
 # --- 2. ルーティング：中核機能 ---
 
-@app.route('/', methods=)
+@app.route('/upload')
 def upload_file():
     """
     ファイルアップロードを処理し、フォームを表示するメインルート。

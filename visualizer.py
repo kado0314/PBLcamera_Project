@@ -21,9 +21,9 @@ SCORE_CATEGORIES_DEFINITION = {
 def create_radar_chart(scores: dict, definition: dict) -> str:
     """ AIからのスコア辞書を受け取り、Base64エンコードされたレーダーチャート画像を返す """
     
-    labels =      # <-- ★ 修正点: リストを初期化
-    max_values =  # <-- ★ 修正点: リストを初期化
-    values =      # <-- ★ 修正点: リストを初期化
+    labels =      # <-- ★★★ 構文エラーを修正しました
+    max_values =  # <-- ★★★ 構文エラーを修正しました
+    values =      # <-- ★★★ 構文エラーを修正しました
     
     # 定義テーブルの順序でスコアを整理し、正規化する
     for key, (label, max_val) in definition.items():
@@ -43,7 +43,7 @@ def create_radar_chart(scores: dict, definition: dict) -> str:
     angles += angles[:1]
     
     # --- ★ 修正点: Render環境の日本語フォント設定 ---
-    # Dockerfileで 'fonts-ipafont-gothic' をインストールすることを前提とします
+    # Dockerfileで 'fonts-ipafont-gothic' をインストールすることを前提とします [1, 2, 3, 4, 5, 6, 7]
     plt.rcParams['font.family'] = 'IPAexGothic'
     plt.rcParams['axes.unicode_minus'] = False # マイナス記号の文字化けを防ぐ
 

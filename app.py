@@ -15,7 +15,7 @@ def index():
     """ index.html (アップロードフォーム) を表示 """
     return render_template('index.html')
 
-@app.route('/upload', methods=)  # <-- ★ 修正点
+@app.route('/upload', methods=)  # <-- ★★★ 最終修正点
 def upload():
     """ 画像アップロードとAI分析の処理 """
     

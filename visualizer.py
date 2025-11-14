@@ -1,7 +1,7 @@
 import io
 import base64
 import matplotlib
-# RenderのようなGUIのないサーバー環境でMatplotlibを動作させるために必要 [3]
+# RenderのようなGUIのないサーバー環境でMatplotlibを動作させるために必要
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,9 +21,9 @@ SCORE_CATEGORIES_DEFINITION = {
 def create_radar_chart(scores: dict, definition: dict) -> str:
     """ AIからのスコア辞書を受け取り、Base64エンコードされたレーダーチャート画像を返す """
     
-    labels =     # <-- ★ 修正点: リストを初期化
-    max_values = # <-- ★ 修正点: リストを初期化
-    values =     # <-- ★ 修正点: リストを初期化
+    labels =      # <-- ★ 修正点: リストを初期化
+    max_values =  # <-- ★ 修正点: リストを初期化
+    values =      # <-- ★ 修正点: リストを初期化
     
     # 定義テーブルの順序でスコアを整理し、正規化する
     for key, (label, max_val) in definition.items():
@@ -42,9 +42,10 @@ def create_radar_chart(scores: dict, definition: dict) -> str:
     values += values[:1]
     angles += angles[:1]
     
-    # Matplotlibのフォント設定（日本語が文字化けする可能性はありますが、エラーは回避します）
-    plt.rcParams['font.sans-serif'] = ['sans-serif'] # <-- ★ 修正点: 値を設定
-    plt.rcParams['font.family'] = 'sans-serif'
+    # --- ★ 修正点: Render環境の日本語フォント設定 ---
+    # Dockerfileで 'fonts-ipafont-gothic' をインストールすることを前提とします
+    plt.rcParams['font.family'] = 'IPAexGothic'
+    plt.rcParams['axes.unicode_minus'] = False # マイナス記号の文字化けを防ぐ
 
     fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(projection='polar'))
     
@@ -66,7 +67,7 @@ def create_radar_chart(scores: dict, definition: dict) -> str:
     # 2. グラフをディスクではなくバッファに保存
     fig.savefig(buf, format='png', bbox_inches='tight')
     
-    # 3. メモリリークを防ぐために明示的に閉じる [4]
+    # 3. メモリリークを防ぐために明示的に閉じる
     plt.close(fig)
     
     # 4. バッファのバイナリデータをBase64にエンコード

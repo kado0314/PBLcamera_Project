@@ -19,7 +19,7 @@ def index():
 def upload():
     """ 画像アップロードとAI分析の処理 """
     
-    # ファイルアップロードの検証 [1, 4]
+    # ファイルアップロードの検証 [1, 3]
     if 'image' not in request.files or request.files['image'].filename == '':
         # ファイルが選択されていない場合は、トップページにリダイレクト
         return redirect(url_for('index'))

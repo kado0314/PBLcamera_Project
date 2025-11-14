@@ -1,4 +1,4 @@
-import io
+``import io
 import base64
 import matplotlib
 # RenderのようなGUIのないサーバー環境でMatplotlibを動作させるために必要
@@ -21,9 +21,9 @@ SCORE_CATEGORIES_DEFINITION = {
 def create_radar_chart(scores: dict, definition: dict) -> str:
     """ AIからのスコア辞書を受け取り、Base64エンコードされたレーダーチャート画像を返す """
     
-    labels =      # <-- ★★★ 構文エラーを修正しました
-    max_values =  # <-- ★★★ 構文エラーを修正しました
-    values =      # <-- ★★★ 構文エラーを修正しました
+    labels = ''    # <-- ★★★ 構文エラーを修正しました
+    max_values = ''# <-- ★★★ 構文エラーを修正しました
+    values = '' # <-- ★★★ 構文エラーを修正しました
     
     # 定義テーブルの順序でスコアを整理し、正規化する
     for key, (label, max_val) in definition.items():

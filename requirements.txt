@@ -1,5 +1,5 @@
-Flask
-google-generativeai
-matplotlib
+flask
 gunicorn
+google-generativeai>=0.7.0
 Pillow
+matplotlib

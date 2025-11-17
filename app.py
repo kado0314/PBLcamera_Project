@@ -16,7 +16,7 @@ def allowed_file(filename):
 # ←★ これが無いから 404!!
 @app.route('/')
 def index():
-    return render_template('upload.html')
+    return render_template('index.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():

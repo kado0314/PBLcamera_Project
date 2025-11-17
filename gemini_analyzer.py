@@ -69,7 +69,7 @@ def analyze_outfit(image_bytes: bytes) -> str:
 
     # --- 最新モデル（ここが重要）---
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash-latest",
+        model_name="gemini-pro-vision",
         generation_config=json_cfg
     )
 

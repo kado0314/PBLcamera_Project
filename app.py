@@ -15,7 +15,7 @@ def index():
     """ index.html (アップロードフォーム) を表示 """
     return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])  # <-- ★★★ 構文エラーを修正しました
+@app.route('/upload', methods=['GET'])  # <-- ★★★ 構文エラーを修正しました
 def upload():
     """ 画像アップロードとAI分析の処理 """
     

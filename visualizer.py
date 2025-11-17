@@ -1,4 +1,4 @@
-``import io
+import io
 import base64
 import matplotlib
 # RenderのようなGUIのないサーバー環境でMatplotlibを動作させるために必要

@@ -1,61 +1,38 @@
 import os
-import json
-from flask import Flask, request, render_template, redirect, url_for
-from gemini_analyzer import analyze_outfit
-from visualizer import create_radar_chart, SCORE_CATEGORIES_DEFINITION
+from flask import Flask, request, render_template, redirect, url_for, flash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-# APIキーが設定されているか起動時に確認
-if not os.environ.get("GEMINI_API_KEY"):
-    print("警告: 環境変数 'GEMINI_API_KEY' が設定されていません。")
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.secret_key = 'your_secret_key'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route('/')
-def index():
-    """ index.html (アップロードフォーム) を表示 """
-    return render_template('index.html')
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/upload', methods=['GET'])  # <-- ★★★ 構文エラーを修正しました
-def upload():
-    """ 画像アップロードとAI分析の処理 """
-    
-    # ファイルアップロードの検証
-    if 'image' not in request.files or request.files['image'].filename == '':
-        # ファイルが選択されていない場合は、トップページにリダイレクト
-        return redirect(url_for('index'))
-    
-    file = request.files['image']
-    
-    try:
-        # ファイルをインメモリで読み込む
-        image_bytes = file.read()
-        
-        # AIエンジンを呼び出す
-        json_string = analyze_outfit(image_bytes)
-        
-        # AIのJSON応答をパース
-        analysis_data = json.loads(json_string)
-        
-        scores = analysis_data.get('scores')
-        feedback = analysis_data.get('feedback')
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
 
-        # AIの応答スキーマ検証
-        if not scores or not feedback:
-            raise ValueError("AIの応答に必要なキー（scores, feedback）が含まれていません。")
+        if 'image_file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
 
-        # 可視化エンジンを呼び出し、Base64文字列を取得
-        chart_base64 = create_radar_chart(scores, SCORE_CATEGORIES_DEFINITION)
-        
-        # 全てのデータを result.html に渡して表示
-        return render_template('result.html',
-                               feedback_reason=feedback.get('reason', '分析エラー'),
-                               feedback_improvement=feedback.get('improvement', 'なし'),
-                               chart_data=chart_base64)
-    
-    except Exception as e:
-        # 汎用エラーハンドリング
-        return render_template('error.html', error=str(e))
+        file = request.files['image_file']
 
-if __name__ == '__main__':
-    # このブロックは 'python app.py' でローカルテストする時のみ実行される
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(save_path)
+
+            flash('File successfully uploaded')
+            return redirect(url_for('upload_file'))
+
+    return render_template('upload.html')

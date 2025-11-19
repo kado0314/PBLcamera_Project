@@ -37,9 +37,9 @@ generation_config = {
 model = None
 if GENAI_API_KEY:
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        generation_config=generation_config,
-    )
+    model_name="gemini-1.5-flash-latest", 
+    generation_config=generation_config,
+)
 
 # Blueprint設定
 scoring_bp = Blueprint('scoring', __name__)

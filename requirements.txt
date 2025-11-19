@@ -1,5 +1,6 @@
 flask
-gunicorn
-google-generativeai>=0.7.0
-Pillow
+google-generativeai
+python-dotenv
 matplotlib
+Pillow
+gunicorn

@@ -27,7 +27,7 @@ else:
     genai.configure(api_key=GENAI_API_KEY)
 
 # ★ここで最新モデルを指定します
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-2.0-flash"
 
 generation_config = {
     "temperature": 1,

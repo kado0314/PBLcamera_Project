@@ -7,44 +7,47 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from PIL import Image
 import matplotlib
-matplotlib.use('Agg') # GUIなしでサーバー上で画像生成するため必須
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
-# ローカル開発環境用（Render上では無視されます）
 load_dotenv()
-
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')
+app.secret_key = os.environ.get('SECRET_KEY', 'default_key')
 
-# --- Gemini API設定 ---
-# RenderのEnvironment Variablesからキーを取得します
+# APIキー設定
 GENAI_API_KEY = os.environ.get('GOOGLE_API_KEY')
 
-if not GENAI_API_KEY:
-    # ローカル実行で.envがない場合の警告（Renderではログに出ます）
-    print("Warning: GOOGLE_API_KEY is not set.")
-else:
-    genai.configure(api_key=GENAI_API_KEY)
-
-# モデル設定
-generation_config = {
-    "temperature": 1,
-    "response_mime_type": "application/json",
-}
-
-# 安全のためAPIキーがある場合のみモデル初期化
-model = None
+# --- 診断機能: 利用可能なモデルをログに出す ---
 if GENAI_API_KEY:
+    genai.configure(api_key=GENAI_API_KEY)
+    print("----------- MODEL CHECK START -----------")
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                print(f"Available: {m.name}")
+    except Exception as e:
+        print(f"List models failed: {e}")
+    print("----------- MODEL CHECK END -----------")
+    
+    # モデル設定（安全策として gemini-1.5-flash を指定）
+    # エラーが出る場合は、ログに出てきた "Available: models/..." の名前をコピーして使います
+    MODEL_NAME = "gemini-1.5-flash" 
+    
+    generation_config = {
+        "temperature": 1,
+        "response_mime_type": "application/json",
+    }
     model = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-latest", 
-    generation_config=generation_config,
-)
+        model_name=MODEL_NAME,
+        generation_config=generation_config,
+    )
+else:
+    model = None
+    print("API Key not found.")
 
-# Blueprint設定
 scoring_bp = Blueprint('scoring', __name__)
 
-# 採点基準定義
 SCORING_CRITERIA = {
     "color_harmony": "色の調和",
     "fit_and_silhouette": "フィット感とシルエット",
@@ -57,12 +60,8 @@ SCORING_CRITERIA = {
 }
 
 def create_radar_chart(scores):
-    """レーダーチャートを作成しBase64文字列で返す"""
-    labels = [v for v in SCORING_CRITERIA.values()]
-    # キー順に値を取得。キーが無い場合は0点とする
-    values = [scores.get(k, 0) for k in SCORING_CRITERIA.keys()] 
-    
-    # 閉じた多角形にするためにデータを一周させる
+    labels = list(SCORING_CRITERIA.values())
+    values = [scores.get(k, 0) for k in SCORING_CRITERIA.keys()]
     values += values[:1]
     angles = np.linspace(0, 2 * np.pi, len(labels), endpoint=False).tolist()
     angles += angles[:1]
@@ -72,15 +71,13 @@ def create_radar_chart(scores):
     ax.plot(angles, values, color='blue', linewidth=2)
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(labels)
-    ax.set_ylim(0, 20) # 各項目の満点目安に合わせて調整
+    ax.set_ylim(0, 20)
     
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
     plt.close()
-    
-    data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return f"data:image/png;base64,{data}"
+    return f"data:image/png;base64,{base64.b64encode(buf.getbuffer()).decode('ascii')}"
 
 @scoring_bp.route('/', methods=['GET', 'POST'])
 def saiten():
@@ -89,65 +86,53 @@ def saiten():
 
     if request.method == 'POST':
         if not model:
-            return render_template('index.html', score=None, error="APIキーが設定されていません。")
+            return render_template('index.html', score=None, error="APIキー設定エラー")
 
         file = request.files.get('image_file')
-        user_gender = request.form.get('user_gender', 'neutral')
-        intended_scene = request.form.get('intended_scene', 'friends')
-
         if not file or file.filename == '':
-            return render_template('index.html', score=None, error="画像を選択してください")
+            return render_template('index.html', score=None, error="画像なし")
 
         try:
-            # 画像処理
             image = Image.open(file)
-            
-            # プレビュー表示用Base64
             buf = io.BytesIO()
             image.save(buf, format="PNG")
-            img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-            uploaded_image_data = f"data:image/png;base64,{img_b64}"
+            uploaded_image_data = f"data:image/png;base64,{base64.b64encode(buf.getvalue()).decode('utf-8')}"
 
-            # プロンプト作成
             prompt = f"""
-            あなたはプロのファッションスタイリストです。以下の画像を分析し、採点してください。
-            ユーザー属性: {user_gender}, 想定シーン: {intended_scene}
-            
-            以下のJSON形式のみで出力してください:
+            ファッションスタイリストとして採点してください。
+            性別: {request.form.get('user_gender')}, シーン: {request.form.get('intended_scene')}
+            JSON出力必須:
             {{
-                "total_score": (0-100の整数),
-                "recommendation": "(一言コメント)",
-                "feedback_points": ["(良い点・改善点1)", "(良い点・改善点2)", "(良い点・改善点3)"],
+                "total_score": 0-100,
+                "recommendation": "コメント",
+                "feedback_points": ["点1", "点2", "点3"],
                 "details": {{
-                    "color_harmony": (0-20), "fit_and_silhouette": (0-20),
-                    "item_coordination": (0-15), "cleanliness_material": (0-15),
-                    "accessories_balance": (0-10), "trendness": (0-10),
-                    "tpo_suitability": (0-5), "photogenic_quality": (0-5)
+                    "color_harmony": 0-20, "fit_and_silhouette": 0-20,
+                    "item_coordination": 0-15, "cleanliness_material": 0-15,
+                    "accessories_balance": 0-10, "trendness": 0-10,
+                    "tpo_suitability": 0-5, "photogenic_quality": 0-5
                 }}
             }}
             """
 
-            # 推論実行
             response = model.generate_content([prompt, image])
             result = json.loads(response.text)
             
-            # グラフ作成
-            radar_chart_data = create_radar_chart(result.get('details', {}))
-
             return render_template(
                 'index.html',
                 score=result.get('total_score', 0),
                 recommendation=result.get('recommendation', ''),
                 feedback=result.get('feedback_points', []),
-                radar_chart_data=radar_chart_data,
+                radar_chart_data=create_radar_chart(result.get('details', {})),
                 uploaded_image_data=uploaded_image_data,
-                selected_gender=user_gender,
-                selected_scene=intended_scene
+                selected_gender=request.form.get('user_gender'),
+                selected_scene=request.form.get('intended_scene')
             )
 
         except Exception as e:
-            print(f"Error: {e}")
-            return render_template('index.html', score=None, error="採点中にエラーが発生しました。")
+            print(f"Scoring Error: {e}")
+            # エラーを画面に出してデバッグしやすくする
+            return render_template('index.html', score=None, error=f"エラー詳細: {e}")
 
 app.register_blueprint(scoring_bp, url_prefix='/scoring')
 

@@ -39,7 +39,7 @@ if GENAI_API_KEY:
         "response_mime_type": "application/json",
     }
     model = genai.GenerativeModel(
-        model_name=MODEL_NAME,
+        model_name="gemini-2.5-flash"
         generation_config=generation_config,
     )
 else:
